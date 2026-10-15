@@ -63,3 +63,21 @@ docker compose up -d --build
 | Superset | http://localhost:8088 | admin / admin |
 | Superset (directeur Côte d'Ivoire) | http://localhost:8088 | directeur_ci / ci2026 |
 | Airflow | http://localhost:8080 | admin / admin |
+
+## Captures d'écran
+
+**1. Pilotage Groupe** : encours, PAR 30, PAR 90, provisions, évolution, encours par pays et reporting institutionnel trimestriel avec la ligne GROUPE.
+
+![Pilotage Groupe](docs/images/pilotage_groupe.png)
+
+**2. Risque crédit** : PAR 30 par pays, encours par tranche de retard, provisions par tranche et matrice de transition.
+
+![Risque crédit](docs/images/risque_credit.png)
+
+**3. Recouvrement et commercial**
+
+![Recouvrement et commercial](docs/images/recouvrement_commercial.png)
+
+**Sécurité par pays** : le même tableau de bord vu par le directeur Côte d'Ivoire (uniquement ses chiffres).
+
+![Vue du directeur Côte d'Ivoire](docs/images/securite_directeur_ci.png)

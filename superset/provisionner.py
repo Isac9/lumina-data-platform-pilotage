@@ -126,8 +126,8 @@ def creer_datasets(api, id_base):
 
 # ------------------------------------------------------------------ graphiques
 def grand_nombre(titre, metrique, fmt, filtre=DERNIER_ARRETE):
-    return {"viz_type": "big_number_total", "metric": metrique, "y_axis_format": fmt,
-            "adhoc_filters": [filtre], "header_font_size": 0.4, "subheader_font_size": 0.15,
+    return {"viz_type": "big_number_total", "metric": metrique, "y_axis_format": "SMART_NUMBER" if fmt == ",.0f" else fmt,
+            "adhoc_filters": [filtre], "header_font_size": 0.3, "subheader_font_size": 0.15,
             "_titre": titre}
 
 
@@ -147,8 +147,10 @@ def barres(titre, x, metrique, groupby, fmt=",.0f"):
 
 def tableau(titre, colonnes, tri, formats, filtres=None):
     return {"viz_type": "table", "query_mode": "raw", "all_columns": colonnes,
-            "order_by_cols": [json.dumps([tri, False])], "adhoc_filters": filtres or [],
+            "order_by_cols": [json.dumps([t, i > 0]) for i, t in enumerate(tri if isinstance(tri, list) else [tri])],
+            "adhoc_filters": filtres or [],
             "row_limit": 1000, "server_page_length": 20, "table_timestamp_format": "%d/%m/%Y",
+            "show_cell_bars": False,
             "column_config": {c: {"d3NumberFormat": f} for c, f in formats.items()},
             "_titre": titre}
 
@@ -169,7 +171,7 @@ def definir_tableaux_de_bord():
                     "Reporting institutionnel trimestriel",
                     ["periode", "code_entite", "nb_clients_actifs", "nb_prets_actifs", "montant_decaisse",
                      "montant_encaisse", "encours", "par30", "par90", "provisions", "taux_provisionnement"],
-                    "date_arrete",
+                    ["date_arrete", "code_entite"],
                     {"par30": pct, "par90": pct, "taux_provisionnement": pct, "encours": ",.0f",
                      "provisions": ",.0f", "montant_decaisse": ",.0f", "montant_encaisse": ",.0f"}), 12, 60)],
             ],
@@ -183,15 +185,15 @@ def definir_tableaux_de_bord():
                     "viz_type": "table", "query_mode": "aggregate", "groupby": ["tranche_retard", "taux_provision"],
                     "metrics": ["nb_prets", "encours_total", "provision"], "adhoc_filters": [DERNIER_ARRETE],
                     "timeseries_limit_metric": {"expressionType": "SQL", "sqlExpression": "min(tranche_retard)", "label": "ordre"},
-                    "order_desc": False, "row_limit": 100, "show_totals": True,
+                    "order_desc": False, "row_limit": 100, "show_totals": True, "show_cell_bars": False,
                     "column_config": {"taux_provision": {"d3NumberFormat": ".0%"}},
-                    "_titre": "Provisions par tranche (aujourd'hui)"}, 6, 50),
+                    "_titre": "Provisions par tranche (aujourd'hui)"}, 6, 60),
                  ("kpi_roll_rates", {
                     "viz_type": "pivot_table_v2", "groupbyRows": ["tranche_debut"], "groupbyColumns": ["tranche_fin"],
                     "metrics": ["nb_prets"], "metricsLayout": "COLUMNS", "aggregateFunction": "Sum",
                     "adhoc_filters": [DERNIER_ARRETE], "rowOrder": "key_a_to_z", "colOrder": "key_a_to_z",
                     "valueFormat": "SMART_NUMBER", "rowTotals": True, "colTotals": True, "row_limit": 1000,
-                    "_titre": "Matrice de transition depuis la fin du mois dernier (nb de prêts)"}, 6, 50)],
+                    "_titre": "Matrice de transition depuis la fin du mois dernier (nb de prêts)"}, 6, 60)],
             ],
         },
         {

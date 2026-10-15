@@ -1,0 +1,6 @@
+# Fichiers techniques de dbt et Python
+dbt/lumina_reporting/target/
+dbt/lumina_reporting/logs/
+__pycache__/
+*.pyc
+.user.yml

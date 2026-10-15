@@ -1,0 +1,55 @@
+version: 2
+
+models:
+  - name: dates_arrete
+    description: "Dates de photo du portefeuille : fin de chaque mois + aujourd'hui."
+    columns:
+      - name: date_arrete
+        tests: [unique, not_null]
+
+  - name: fct_situation_prets
+    description: "Un prêt actif à une date d'arrêté : encours, arriérés, jours de retard (règle FIFO), tranche et provision."
+    columns:
+      - name: encours
+        description: "Reste à rembourser à la date d'arrêté (montant financé - total payé)."
+        tests: [not_null]
+      - name: jours_retard
+        description: "Nombre de jours depuis la plus ancienne échéance impayée."
+        tests: [not_null]
+      - name: tranche_retard
+        tests:
+          - not_null
+          - accepted_values:
+              values: ["0 - À jour", "1 - 1 à 30 j", "2 - 31 à 60 j", "3 - 61 à 90 j", "4 - 91 à 120 j", "5 - Plus de 120 j"]
+
+  - name: kpi_par
+    description: "Portefeuille à risque (PAR 30, 60, 90, 120) par pays et date d'arrêté."
+    columns:
+      - name: par30
+        description: "Encours des prêts en retard de plus de 30 jours / encours total."
+
+  - name: kpi_provisions
+    description: "Encours et provisions par tranche de retard."
+
+  - name: kpi_roll_rates
+    description: "Transitions des prêts entre tranches de retard d'un mois sur l'autre."
+
+  - name: kpi_recouvrement
+    description: "Montant dû, encaissé et taux de recouvrement par mois et par pays."
+
+  - name: kpi_commercial
+    description: "Ventes mensuelles par pays et par produit."
+
+  - name: kpi_agents
+    description: "Ventes et qualité du portefeuille (PAR 30) de chaque agent."
+    columns:
+      - name: id_agent
+        tests: [unique, not_null]
+
+  - name: rapport_institutionnel
+    description: "Reporting trimestriel par pays + ligne GROUPE consolidée."
+    columns:
+      - name: code_entite
+        tests:
+          - accepted_values:
+              values: ["CI", "SN", "BF", "GROUPE"]

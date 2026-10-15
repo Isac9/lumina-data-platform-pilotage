@@ -1,0 +1,31 @@
+name: lumina_reporting
+version: "1.0.0"
+profile: lumina_reporting
+
+model-paths: ["models"]
+seed-paths: ["seeds"]
+test-paths: ["tests"]
+macro-paths: ["macros"]
+
+models:
+  lumina_reporting:
+    # Toutes les tables d'indicateurs vont dans le schéma "reporting".
+    # Ce sont des TABLES (et pas des vues) : quand le projet 1 reconstruit
+    # ses tables, il supprime les vues qui en dépendent.
+    +schema: reporting
+    +materialized: table
+    +grants:
+      select: ["direction_groupe", "lecteur_ci", "lecteur_sn", "lecteur_bf"]
+
+seeds:
+  lumina_reporting:
+    +schema: reporting
+    regles_provisionnement:
+      +column_types:
+        jours_min: integer
+        jours_max: integer
+        taux_provision: numeric(5,2)
+
+# Les lecteurs doivent avoir le droit d'"entrer" dans le schéma reporting
+on-run-end:
+  - "grant usage on schema reporting to direction_groupe, lecteur_ci, lecteur_sn, lecteur_bf"

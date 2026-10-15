@@ -1,0 +1,70 @@
+# =====================================================================
+#  Projet 2 - Tableaux de bord de pilotage (Apache Superset)
+#
+#  Ce fichier COMPLÈTE celui du projet 1 (voir le fichier .env).
+#  ⚠️ Comme le fichier du projet 1 est lu en premier, les chemins
+#  ci-dessous partent du dossier du PROJET 1. C'est pour cela qu'ils
+#  commencent par ../projet2-tableaux-de-bord/
+# =====================================================================
+
+services:
+
+  # ---------------------------------------------------------------
+  # Airflow (du projet 1) : on lui ajoute le pipeline de reporting
+  # ---------------------------------------------------------------
+  airflow:
+    environment:
+      # Airflow lit maintenant les DAGs des deux projets
+      AIRFLOW__CORE__DAGS_FOLDER: /opt/airflow/tous_les_dags
+      PYTHONPATH: /opt/airflow/tous_les_dags/projet1
+    volumes:
+      - ./airflow/dags:/opt/airflow/tous_les_dags/projet1
+      - ../projet2-tableaux-de-bord/airflow/dags:/opt/airflow/tous_les_dags/projet2
+      - ../projet2-tableaux-de-bord/dbt:/opt/dbt_reporting
+
+  # ---------------------------------------------------------------
+  # Apache Superset : les tableaux de bord
+  # Interface : http://localhost:8088  (admin / admin)
+  # ---------------------------------------------------------------
+  superset:
+    build: ../projet2-tableaux-de-bord/superset
+    image: lumina-superset:4.1.1
+    container_name: lumina-superset
+    environment:
+      SUPERSET_CONFIG_PATH: /app/config/superset_config.py
+    volumes:
+      - ../projet2-tableaux-de-bord/superset/superset_config.py:/app/config/superset_config.py:ro
+      - superset_home:/app/superset_home
+    ports:
+      - "8088:8088"
+    command: >
+      bash -c "superset db upgrade &&
+      superset fab create-admin --username admin --firstname Admin --lastname Lumina --email admin@exemple.com --password admin ;
+      superset init &&
+      /usr/bin/run-server.sh"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -fs http://localhost:8088/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 30
+    depends_on:
+      dwh-db:
+        condition: service_healthy
+
+  # ---------------------------------------------------------------
+  # Installation automatique des tableaux de bord dans Superset
+  # (s'exécute une fois puis s'arrête)
+  # ---------------------------------------------------------------
+  superset-init:
+    image: lumina-superset:4.1.1
+    container_name: lumina-superset-init
+    volumes:
+      - ../projet2-tableaux-de-bord/superset/provisionner.py:/app/provisionner.py:ro
+    command: ["python", "/app/provisionner.py"]
+    restart: "no"
+    depends_on:
+      superset:
+        condition: service_healthy
+
+volumes:
+  superset_home:

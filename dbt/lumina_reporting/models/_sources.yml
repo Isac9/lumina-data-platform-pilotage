@@ -1,0 +1,14 @@
+version: 2
+
+sources:
+  - name: entrepot
+    description: "Tables finales de l'entrepôt construites par le projet 1."
+    schema: marts
+    tables:
+      - name: fact_prets
+      - name: fact_echeances
+      - name: fact_remboursements
+      - name: fact_ventes
+      - name: dim_entite
+      - name: dim_agent
+      - name: dim_client

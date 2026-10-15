@@ -1,0 +1,7 @@
+tranche_retard,jours_min,jours_max,taux_provision
+0 - À jour,0,0,0.01
+1 - 1 à 30 j,1,30,0.05
+2 - 31 à 60 j,31,60,0.25
+3 - 61 à 90 j,61,90,0.50
+4 - 91 à 120 j,91,120,0.75
+5 - Plus de 120 j,121,99999,1.00
